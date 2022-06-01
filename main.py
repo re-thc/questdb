@@ -1,9 +1,8 @@
 from typing import Union
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Response
 from uuid import UUID
 from uuid import uuid4
 from kubernetes import client, config
-import json
 import yaml
 from os import path
 
@@ -16,10 +15,10 @@ def questdb_status(instance_id: UUID):
     instance_id_str = str(instance_id)
     v1 = client.AppsV1Api()
     try:
-        ret = v1.read_namespaced_stateful_set_status(name="questdb", namespace=instance_id_str)
+        ret = v1.read_namespaced_stateful_set_status(name="questdb", namespace=instance_id_str,pretty="true")
     except:
         raise HTTPException(status_code=404, detail="QuestDB instance not found")    
-    return json.dump(ret)
+    return Response(content=str(ret.status), media_type="application/json")
 
 @app.post("/questdb")
 def questdb_create():
