@@ -1,0 +1,14 @@
+# Source: questdb/templates/config-map.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: questdb
+  labels:
+    helm.sh/chart: questdb-0.20.2
+    app.kubernetes.io/name: questdb
+    app.kubernetes.io/instance: questdb
+    app.kubernetes.io/version: "6.4"
+    app.kubernetes.io/managed-by: Helm
+data:
+  server.conf: |
+    shared.worker.count = 2

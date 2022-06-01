@@ -1,0 +1,21 @@
+# Source: questdb/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: questdb
+  labels:
+    helm.sh/chart: questdb-0.20.2
+    app.kubernetes.io/name: questdb
+    app.kubernetes.io/instance: questdb
+    app.kubernetes.io/version: "6.4"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 9000
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: questdb
+    app.kubernetes.io/instance: questdb

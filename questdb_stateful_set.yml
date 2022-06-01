@@ -1,0 +1,78 @@
+
+# Source: questdb/templates/statefulset.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: questdb
+  labels:
+    helm.sh/chart: questdb-0.20.2
+    app.kubernetes.io/name: questdb
+    app.kubernetes.io/instance: questdb
+    app.kubernetes.io/version: "6.4"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  # Not horizontally scalable yet, so pinning to 1
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: questdb
+      app.kubernetes.io/instance: questdb
+  serviceName: "questdb-headless"
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: questdb
+        app.kubernetes.io/instance: questdb
+    spec:
+      securityContext:
+        {}
+      containers:
+        - name: questdb
+          securityContext:
+            {}
+          image: "questdb/questdb:6.4"
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+          - name: questdb
+            mountPath: /root/.questdb/db
+          - name: config
+            mountPath: /root/.questdb/conf/server.conf
+            subPath: server.conf
+
+          ports:
+            - name: http
+              containerPort: 9000
+              protocol: TCP
+            - name: postgresql
+              containerPort: 8812
+              protocol: TCP
+            - name: influxdb
+              containerPort: 9009
+              protocol: TCP
+          # QuestDB doesn't really expose an endpoint that works well for
+          # these probes. Hopefully soon?
+          # livenessProbe:
+          #   httpGet:
+          #     path: /
+          #     port: http
+          # readinessProbe:
+          #   httpGet:
+          #     path: /
+          #     port: http
+          resources:
+            {}
+      volumes:
+        - name: config
+          configMap:
+            name: questdb
+
+  volumeClaimTemplates:
+    - metadata:
+        name: questdb
+        annotations:
+      spec:
+        accessModes:
+          - "ReadWriteOnce"
+        resources:
+          requests:
+            storage: "50Gi"
